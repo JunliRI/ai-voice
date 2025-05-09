@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Text‑to‑Speech Reader</title>
+  <style>
+    :root {
+      --primary: #4f46e5; /* indigo‑600 */
+      --danger: #ef4444;  /* red‑500 */
+    }
+    body {
+      margin: 0;
+      padding: 1rem;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f9fafb; /* gray‑50 */
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      font-size: 1.25rem; /* lg */
+      line-height: 1.6;
+      padding: 1rem;
+      border: 2px solid #d1d5db; /* gray‑300 */
+      border-radius: 0.75rem; /* xl */
+      background: #fff;
+      resize: vertical;
+    }
+    .btn-row {
+      display: flex;
+      gap: 1rem;
+    }
+    button {
+      flex: 1;
+      font-size: 1.25rem; /* lg */
+      padding: 1rem;
+      border: none;
+      border-radius: 0.75rem; /* xl */
+      color: #fff;
+      cursor: pointer;
+    }
+    button.speak { background: var(--primary); }
+    button.stop  { background: var(--danger); }
+    @media (hover:hover) {
+      button:hover { opacity: 0.9; }
+    }
+    @media (max-width: 480px) {
+      textarea { min-height: 160px; font-size: 1.125rem; }
+      button   { font-size: 1.125rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <textarea id="textInput" placeholder="Type something...\n例如：Good morning, world!"></textarea>
+    <div class="btn-row">
+      <button id="speakBtn" class="speak">Speak</button>
+      <button id="stopBtn" class="stop">Stop</button>
+    </div>
+  </div>
+
+  <script>
+    const speakBtn = document.getElementById("speakBtn");
+    const stopBtn  = document.getElementById("stopBtn");
+    const input    = document.getElementById("textInput");
+    let utterance; // keep reference so we can stop it later
+
+    speakBtn.addEventListener("click", () => {
+      const text = input.value.trim();
+      if (!text) return;
+      // Cancel any ongoing speech so we can restart
+      if (speechSynthesis.speaking || speechSynthesis.pending) {
+        speechSynthesis.cancel();
+      }
+      utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US"; // use default Chrome AI voice
+      speechSynthesis.speak(utterance);
+    });
+
+    stopBtn.addEventListener("click", () => {
+      if (speechSynthesis.speaking || speechSynthesis.pending) {
+        speechSynthesis.cancel();
+      }
+    });
+  </script>
+</body>
+</html>
