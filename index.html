@@ -72,7 +72,22 @@
     const speakBtn = document.getElementById("speakBtn");
     const stopBtn  = document.getElementById("stopBtn");
     const input    = document.getElementById("textInput");
-    let utterance; // keep reference so we can stop it later
+    let maleVoice = null;
+
+    function selectMaleVoice() {
+      const voices = speechSynthesis.getVoices();
+      // Try to find a voice with "male" in the name
+      maleVoice = voices.find(v => v.name.toLowerCase().includes('male'))
+        // Fallback to a default English voice
+        || voices.find(v => v.lang.startsWith('en'));
+    }
+
+    // Populate voices and select male voice when available
+    speechSynthesis.onvoiceschanged = selectMaleVoice;
+    // Also try once in case voices are already loaded
+    window.addEventListener('load', () => {
+      selectMaleVoice();
+    });
 
     speakBtn.addEventListener("click", () => {
       const text = input.value.trim();
@@ -81,8 +96,9 @@
       if (speechSynthesis.speaking || speechSynthesis.pending) {
         speechSynthesis.cancel();
       }
-      utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US"; // use default Chrome AI voice
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = maleVoice?.lang || 'en-US';
+      if (maleVoice) utterance.voice = maleVoice;
       speechSynthesis.speak(utterance);
     });
 
@@ -94,3 +110,4 @@
   </script>
 </body>
 </html>
+
